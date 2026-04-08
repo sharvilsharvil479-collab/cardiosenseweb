@@ -23,8 +23,15 @@ from reportlab.lib.enums import TA_CENTER
 # App Config
 # ─────────────────────────────────────────────────────────────────────
 app = Flask(__name__)
-app.secret_key = 'cardiosense_secret_key_2024'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cardiosense.db'
+app.secret_key = os.environ.get('SECRET_KEY', 'cardiosense_secret_key_2024')
+
+# Use PostgreSQL from Vercel env variable if available, else local SQLite
+db_url = os.environ.get('POSTGRES_URL', os.environ.get('DATABASE_URL', 'sqlite:///cardiosense.db'))
+# Standardize Postgres dialect for SQLAlchemy
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 
