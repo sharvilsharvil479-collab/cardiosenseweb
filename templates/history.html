@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}History — CardioSense{% endblock %}
+{% block extra_head %}
+<style>
+.hcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.9rem;overflow:hidden;transition:border-color .25s}
+.hcard:hover{border-color:rgba(224,48,80,.2)}
+.hc-head{display:flex;align-items:center;gap:1rem;padding:1.05rem 1.3rem;cursor:pointer}
+.hc-num{width:38px;height:38px;background:rgba(224,48,80,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--accent);flex-shrink:0}
+.hc-meta{flex:1;min-width:0}
+.hc-meta h4{font-size:.88rem;font-weight:600;margin-bottom:.12rem}
+.hc-meta p{font-size:.74rem;color:var(--muted)}
+.hc-right{display:flex;align-items:center;gap:.7rem;flex-shrink:0}
+.chevron{color:var(--muted);font-size:.8rem;transition:transform .25s;flex-shrink:0}
+.chevron.open{transform:rotate(180deg)}
+.hc-body{display:none;padding:0 1.3rem 1.3rem;border-top:1px solid var(--border);animation:fadeIn .2s ease}
+.hc-body.open{display:block}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem .75rem;margin:.8rem 0 1rem}
+.pitem .pk{font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.1rem}
+.pitem .pv{font-weight:600;color:var(--text);font-size:.82rem}
+.mpills{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.mp{padding:.2rem .6rem;border-radius:50px;font-size:.7rem;font-weight:600}
+.mp-r{background:rgba(224,48,80,.15);color:var(--accent)}
+.mp-s{background:rgba(34,197,94,.12);color:var(--success)}
+.hc-act{margin-top:1rem}
+.filter-bar{display:flex;gap:.55rem;margin-bottom:1.3rem;flex-wrap:wrap}
+.fb{padding:.4rem .95rem;border-radius:50px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .2s}
+.fb.active,.fb:hover{background:rgba(224,48,80,.12);border-color:rgba(224,48,80,.3);color:var(--text)}
+.empty{text-align:center;padding:5rem 2rem;color:var(--muted)}
+.empty .ei{font-size:3rem;margin-bottom:1rem;display:block}
+.empty h3{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:.5rem;color:var(--text)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Prediction <em>History</em></h1>
+  <p>All {{ predictions|length }} prediction{{ 's' if predictions|length != 1 else '' }} — stored securely in your account</p>
+</div>
+
+{% if predictions %}
+<div class="filter-bar">
+  <button class="fb active" onclick="filt('all',this)">All ({{ predictions|length }})</button>
+  <button class="fb" onclick="filt('high',this)">⚠ High Risk</button>
+  <button class="fb" onclick="filt('moderate',this)">🟡 Moderate</button>
+  <button class="fb" onclick="filt('low',this)">✅ Low Risk</button>
+</div>
+
+{% for p in predictions %}
+{% set results_list = p.results_json | from_json %}
+<div class="hcard" data-risk="{{ p.risk_label }}">
+  <div class="hc-head" onclick="tog({{ loop.index }})">
+    <div class="hc-num">#{{ '%05d' % p.id }}</div>
+    <div class="hc-meta">
+      <h4>{{ p.created_at.strftime('%d %B %Y, %I:%M %p') }}</h4>
+      <p>
+        Age {{ p.age }} &middot;
+        {{ 'Male' if p.sex==0 else 'Female' }} &middot;
+        {% if p.chestpain==0 %}Atypical Angina
+        {% elif p.chestpain==1 %}Non-Anginal Pain
+        {% elif p.chestpain==2 %}Asymptomatic
+        {% else %}Typical Angina{% endif %}
+      </p>
+    </div>
+    <div class="hc-right">
+      <span class="risk-badge risk-{{ p.risk_label }}">
+        {{ '⚠' if p.risk_label=='high' else ('🟡' if p.risk_label=='moderate' else '✅') }}
+        {{ p.risk_pct }}% {{ p.risk_label|capitalize }}
+      </span>
+      <span class="chevron" id="chev{{ loop.index }}">▼</span>
+    </div>
+  </div>
+
+  <div class="hc-body" id="body{{ loop.index }}">
+    <div class="pgrid">
+      <div class="pitem"><div class="pk">Age</div><div class="pv">{{ p.age }} yrs</div></div>
+      <div class="pitem"><div class="pk">Sex</div><div class="pv">{{ 'Male' if p.sex==0 else 'Female' }}</div></div>
+      <div class="pitem"><div class="pk">Chest Pain</div><div class="pv">
+        {% if p.chestpain==0 %}Atypical{% elif p.chestpain==1 %}Non-Anginal{% elif p.chestpain==2 %}Asymp.{% else %}Typical{% endif %}
+      </div></div>
+      <div class="pitem"><div class="pk">Resting BP</div><div class="pv">{{ p.rbp }} mmHg</div></div>
+      <div class="pitem"><div class="pk">Cholesterol</div><div class="pv">{{ p.cholesterol }} mg/dl</div></div>
+      <div class="pitem"><div class="pk">Fasting BS</div><div class="pv">{{ '> 120' if p.fasting_bs else '≤ 120' }} mg/dl</div></div>
+      <div class="pitem"><div class="pk">Resting ECG</div><div class="pv">
+        {% if p.ecg==0 %}Normal{% elif p.ecg==1 %}ST-T Abnorm.{% else %}LV Hypert.{% endif %}
+      </div></div>
+      <div class="pitem"><div class="pk">Max HR</div><div class="pv">{{ p.max_hr }} bpm</div></div>
+      <div class="pitem"><div class="pk">Ex. Angina</div><div class="pv">{{ 'Yes' if p.angina else 'No' }}</div></div>
+      <div class="pitem"><div class="pk">Oldpeak</div><div class="pv">{{ p.oldpeak }}</div></div>
+      <div class="pitem"><div class="pk">ST Slope</div><div class="pv">
+        {% if p.st_slope==0 %}Upsloping{% elif p.st_slope==1 %}Flat{% else %}Downsloping{% endif %}
+      </div></div>
+    </div>
+
+    {% if results_list %}
+    <div style="font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.45rem">Model Verdicts</div>
+    <div class="mpills">
+      {% for r in results_list %}
+      <span class="mp {{ 'mp-r' if r.get('prediction')==1 else 'mp-s' }}">
+        {{ '⚠' if r.get('prediction')==1 else '✓' }} {{ r.get('model','?') }}
+        {% if r.get('probability') is not none %}({{ r.get('probability') }}%){% endif %}
+      </span>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="hc-act">
+      <a href="/api/report/{{ p.id }}" class="btn btn-primary btn-sm">📥 Download PDF Report</a>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="empty">
+  <span class="ei">🕓</span>
+  <h3>No predictions yet</h3>
+  <p style="margin-bottom:1.5rem">Run your first cardiovascular risk assessment and your history will appear here.</p>
+  <a href="/predict" class="btn btn-primary">⚡ Start Predicting</a>
+</div>
+{% endif %}
+
+<script>
+function tog(i){
+  const b=document.getElementById('body'+i);
+  const c=document.getElementById('chev'+i);
+  const o=b.classList.toggle('open');
+  c.classList.toggle('open',o);
+}
+function filt(risk,btn){
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.hcard').forEach(c=>{
+    c.style.display=(risk==='all'||c.dataset.risk===risk)?'':'none';
+  });
+}
+</script>
+{% endblock %}

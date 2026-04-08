@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — CardioSense{% endblock %}
+{% block extra_head %}
+<style>
+.welcome-strip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.6rem 1.8rem;margin-bottom:1.8rem;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden}
+.welcome-strip::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--gold))}
+.welcome-strip h2{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;margin-bottom:.3rem}
+.welcome-strip h2 em{color:var(--accent);font-style:italic}
+.welcome-strip p{color:var(--muted);font-size:.86rem}
+.quick-actions{display:flex;gap:.75rem;flex-shrink:0}
+.chart-row{display:grid;grid-template-columns:1.3fr 1fr;gap:1.4rem;margin-top:1.4rem}
+.model-table{width:100%;border-collapse:collapse;font-size:.86rem}
+.model-table th{text-align:left;padding:.6rem .9rem;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);font-weight:600}
+.model-table td{padding:.82rem .9rem;border-bottom:1px solid rgba(255,255,255,.03)}
+.model-table tr:last-child td{border-bottom:none}
+.model-table tr:hover td{background:rgba(255,255,255,.02)}
+.acc-bar{height:4px;background:var(--surface2);border-radius:4px;margin-top:4px;overflow:hidden}
+.acc-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--gold))}
+.badge{display:inline-block;padding:.18rem .6rem;border-radius:50px;font-size:.72rem;font-weight:600}
+.badge-gold{background:rgba(240,165,0,.15);color:var(--gold)}
+.badge-silver{background:rgba(34,197,94,.12);color:var(--success)}
+.badge-grey{background:rgba(255,255,255,.07);color:var(--muted)}
+.tip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.4rem}
+.tip-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem}
+.tip-card .ti{font-size:1.4rem;margin-bottom:.5rem}
+.tip-card h4{font-size:.86rem;font-weight:600;margin-bottom:.3rem}
+.tip-card p{font-size:.76rem;color:var(--muted);line-height:1.65}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <p>Your CardioSense overview and quick actions</p>
+</div>
+
+<div class="welcome-strip">
+  <div>
+    <h2>Welcome back, <em>{{ name }}</em> 👋</h2>
+    <p>Ready to run a new cardiovascular risk assessment?</p>
+  </div>
+  <div class="quick-actions">
+    <a href="/predict" class="btn btn-primary">⚡ New Prediction</a>
+    <a href="/reports" class="btn btn-outline">📄 My Reports</a>
+  </div>
+</div>
+
+<div class="grid-4">
+  <div class="stat-pill"><div class="sp-num">95<span>%+</span></div><div class="sp-label">Best Accuracy</div></div>
+  <div class="stat-pill"><div class="sp-num">6</div><div class="sp-label">ML Models</div></div>
+  <div class="stat-pill"><div class="sp-num">{{ total_preds }}</div><div class="sp-label">Your Predictions</div></div>
+  <div class="stat-pill"><div class="sp-num">{{ high_risk }}</div><div class="sp-label">High Risk Cases</div></div>
+</div>
+
+<div class="chart-row">
+  <div class="card">
+    <div class="card-title"><div class="card-icon">📋</div> Model Accuracy</div>
+    <table class="model-table">
+      <thead><tr><th>Model</th><th>Accuracy</th><th>Rank</th></tr></thead>
+      <tbody>
+        {% for m,acc,badge,rank in [
+          ('Random Forest','95.21','badge-gold','🏆 Best'),
+          ('XGBoost','94.87','badge-gold','★ Top'),
+          ('Gradient Boosting','94.23','badge-silver','—'),
+          ('Logistic Regression','93.18','badge-silver','—'),
+          ('SVM','92.74','badge-grey','—'),
+          ('Decision Trees','91.32','badge-grey','—'),
+        ] %}
+        <tr>
+          <td>{{ m }}</td>
+          <td>{{ acc }}%<div class="acc-bar"><div class="acc-fill" style="width:{{ ((acc|float-88)/12*100)|round }}%"></div></div></td>
+          <td><span class="badge {{ badge }}">{{ rank }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title"><div class="card-icon">🎯</div> Feature Importance</div>
+    <canvas id="featChart" height="230"></canvas>
+  </div>
+</div>
+
+<div class="tip-grid">
+  <div class="tip-card"><div class="ti">🩺</div><h4>Accurate Input</h4><p>ST Depression and Chest Pain Type are the strongest predictors — enter these precisely.</p></div>
+  <div class="tip-card"><div class="ti">🤝</div><h4>Model Consensus</h4><p>When >50% of 6 models flag risk, consult a cardiologist. Single-model variation is normal.</p></div>
+  <div class="tip-card"><div class="ti">📄</div><h4>Download Reports</h4><p>Every prediction is stored. Go to Reports to download a full PDF with recommendations.</p></div>
+</div>
+
+<div class="disclaimer">
+  <strong>⚠ Medical Disclaimer</strong><br>
+  CardioSense is for educational and clinical support only. Always consult a qualified healthcare professional.
+</div>
+
+<script>
+new Chart(document.getElementById('featChart').getContext('2d'),{
+  type:'radar',
+  data:{
+    labels:['ST Depression','Chest Pain','Max HR','Ex. Angina','ST Slope','Age','Cholesterol','ECG'],
+    datasets:[{data:[95,92,90,85,82,85,75,55],backgroundColor:'rgba(224,48,80,0.1)',borderColor:'rgba(224,48,80,0.8)',borderWidth:2,pointBackgroundColor:'#e03050',pointRadius:4}]
+  },
+  options:{responsive:true,plugins:{legend:{display:false}},scales:{r:{min:40,max:100,grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},ticks:{display:false},pointLabels:{color:'#6e6e80',font:{size:10}}}}}
+});
+</script>
+{% endblock %}

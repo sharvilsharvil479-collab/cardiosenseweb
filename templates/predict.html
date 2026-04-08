@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Predict — CardioSense{% endblock %}
+{% block extra_head %}
+<style>
+.sec-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:.85rem;padding-bottom:.45rem;border-bottom:1px solid rgba(224,48,80,.18)}
+.form-col{display:flex;flex-direction:column;gap:.9rem}
+.model-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.3rem}
+.mrc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center;transition:transform .2s}
+.mrc:hover{transform:translateY(-2px)}
+.mrc.risk{border-color:rgba(224,48,80,.45);background:rgba(224,48,80,.06)}
+.mrc.safe{border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.06)}
+.mrc .mn{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.45rem}
+.mrc .mi{font-size:1.4rem;margin-bottom:.25rem}
+.mrc .ml{font-size:.76rem;font-weight:600}
+.mrc .ml.risk{color:var(--accent)}
+.mrc .ml.safe{color:var(--success)}
+.mrc .mp{font-size:.68rem;color:var(--muted);margin-top:.15rem}
+.risk-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem;display:flex;align-items:center;gap:2.2rem;margin-top:1.3rem}
+.meter-box{position:relative;width:155px;height:105px;flex-shrink:0}
+.meter-box canvas{width:100%!important;height:auto!important}
+.meter-center{position:absolute;bottom:0;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none}
+.meter-pct{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;line-height:1}
+.meter-sub{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.risk-info h3{font-family:'Playfair Display',serif;font-size:1.35rem;margin-bottom:.45rem}
+.risk-info p{color:var(--muted);font-size:.86rem;line-height:1.7}
+.risk-tips{margin-top:.85rem;display:flex;flex-direction:column;gap:.4rem}
+.risk-tip{display:flex;align-items:flex-start;gap:.55rem;font-size:.82rem;color:var(--muted)}
+.risk-tip::before{content:'→';color:var(--accent);font-weight:700;flex-shrink:0;margin-top:.05rem}
+.results-section{display:none;animation:slideUp .45s ease}
+.results-section.visible{display:block}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.spin{animation:sp .8s linear infinite;display:inline-block}
+@keyframes sp{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.demo-note{background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.2);border-radius:10px;padding:.65rem 1rem;font-size:.78rem;color:var(--gold);margin-bottom:1rem}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Heart Disease <em>Predictor</em></h1>
+  <p>Enter patient clinical parameters to receive a multi-model risk assessment</p>
+</div>
+
+<div class="grid-2" style="margin-bottom:1.3rem">
+  <div class="card">
+    <div class="sec-label">Personal &amp; Vitals</div>
+    <div class="form-col">
+      <div class="field"><label>Age (years)</label>
+        <input type="range" id="age" min="20" max="90" value="50" oninput="rv('age','ageV',v=>v+' yrs')">
+        <div class="range-val" id="ageV">50 yrs</div></div>
+      <div class="field"><label>Sex</label>
+        <select id="sex"><option value="0">Male</option><option value="1">Female</option></select></div>
+      <div class="field"><label>Chest Pain Type</label>
+        <select id="chestpain">
+          <option value="2">Asymptomatic</option>
+          <option value="0">Atypical Angina</option>
+          <option value="1">Non-Anginal Pain</option>
+          <option value="3">Typical Angina</option>
+        </select></div>
+      <div class="field"><label>Resting Blood Pressure (mm Hg)</label>
+        <input type="range" id="rbp" min="80" max="220" value="120" oninput="rv('rbp','rbpV',v=>v+' mmHg')">
+        <div class="range-val" id="rbpV">120 mmHg</div></div>
+      <div class="field"><label>Serum Cholesterol (mg/dl)</label>
+        <input type="range" id="chol" min="100" max="600" value="200" oninput="rv('chol','cholV',v=>v+' mg/dl')">
+        <div class="range-val" id="cholV">200 mg/dl</div></div>
+      <div class="field"><label>Fasting Blood Sugar</label>
+        <select id="fbs"><option value="0">≤ 120 mg/dl</option><option value="1">> 120 mg/dl</option></select></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sec-label">Cardiac Parameters</div>
+    <div class="form-col">
+      <div class="field"><label>Resting ECG Results</label>
+        <select id="ecg">
+          <option value="0">Normal</option>
+          <option value="1">ST-T Wave Abnormality</option>
+          <option value="2">Left Ventricular Hypertrophy</option>
+        </select></div>
+      <div class="field"><label>Maximum Heart Rate</label>
+        <input type="range" id="maxhr" min="60" max="202" value="150" oninput="rv('maxhr','maxhrV',v=>v+' bpm')">
+        <div class="range-val" id="maxhrV">150 bpm</div></div>
+      <div class="field"><label>Exercise-Induced Angina</label>
+        <select id="angina"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div class="field"><label>ST Depression (Oldpeak)</label>
+        <input type="range" id="oldpeak" min="0" max="10" step="0.1" value="1" oninput="rv('oldpeak','oldpeakV',v=>parseFloat(v).toFixed(1))">
+        <div class="range-val" id="oldpeakV">1.0</div></div>
+      <div class="field"><label>ST Slope</label>
+        <select id="stslope">
+          <option value="0">Upsloping</option>
+          <option value="1">Flat</option>
+          <option value="2">Downsloping</option>
+        </select></div>
+    </div>
+  </div>
+</div>
+
+<button class="btn btn-primary btn-full" id="predictBtn" onclick="runPrediction()">
+  ⚡ &nbsp;Analyze Heart Disease Risk
+</button>
+
+<div class="results-section" id="results">
+  <div style="margin-top:1.8rem">
+    <div id="demoNote" class="demo-note" style="display:none">
+      ℹ️ Running in <strong>demo mode</strong> — .pkl model files not found. Predictions are simulated with a clinical scoring algorithm.
+    </div>
+    <div class="card" style="margin-bottom:1.3rem">
+      <div class="card-title"><div class="card-icon">🔬</div> Individual Model Results</div>
+      <div class="model-grid" id="modelCards"></div>
+      <div style="display:flex;gap:.75rem;margin-top:.5rem">
+        <a id="downloadLink" href="#" class="btn btn-primary btn-sm" style="display:none">📥 Download PDF Report</a>
+      </div>
+    </div>
+    <div class="risk-wrap" id="riskWrap">
+      <div class="meter-box"><canvas id="meterCanvas"></canvas>
+        <div class="meter-center">
+          <div class="meter-pct" id="riskPct">—</div>
+          <div class="meter-sub">Risk Score</div>
+        </div>
+      </div>
+      <div class="risk-info">
+        <h3 id="riskTitle">—</h3>
+        <p id="riskDesc">—</p>
+        <div class="risk-tips" id="riskTips"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="disclaimer">
+  <strong>⚠ Medical Disclaimer</strong><br>
+  For educational purposes only. Always consult a qualified healthcare professional.
+</div>
+
+<script>
+function rv(id,vid,fmt){document.getElementById(vid).textContent=fmt(document.getElementById(id).value)}
+function g(id){return document.getElementById(id).value}
+let meterChart=null;
+
+async function runPrediction(){
+  const btn=document.getElementById('predictBtn');
+  btn.innerHTML='<span class="spin">⏳</span> &nbsp;Analyzing…';btn.disabled=true;
+  const payload={age:g('age'),sex:g('sex'),chestpain:g('chestpain'),rbp:g('rbp'),chol:g('chol'),fbs:g('fbs'),ecg:g('ecg'),maxhr:g('maxhr'),angina:g('angina'),oldpeak:g('oldpeak'),stslope:g('stslope')};
+  try{
+    const res=await fetch('/api/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    renderResults(data);
+  }catch(e){alert('Error: '+e.message)}
+  btn.innerHTML='⚡ &nbsp;Analyze Heart Disease Risk';btn.disabled=false;
+}
+
+function renderResults(data){
+  document.getElementById('demoNote').style.display=data.demo?'block':'none';
+  const container=document.getElementById('modelCards');
+  container.innerHTML=data.results.map(r=>{
+    const ir=r.prediction===1;
+    return `<div class="mrc ${ir?'risk':'safe'}">
+      <div class="mn">${r.model}</div>
+      <div class="mi">${ir?'⚠️':'✅'}</div>
+      <div class="ml ${ir?'risk':'safe'}">${ir?'Risk Detected':'Low Risk'}</div>
+      ${r.probability!==null?`<div class="mp">Prob: ${r.probability}%</div>`:''}
+    </div>`;
+  }).join('');
+  // PDF link
+  if(data.pred_id){
+    const dl=document.getElementById('downloadLink');
+    dl.href='/api/report/'+data.pred_id;dl.style.display='';
+  }
+  // Meter
+  const rp=data.risk_pct;
+  const col=rp>60?'#e03050':rp>35?'#f0a500':'#22c55e';
+  const ctx=document.getElementById('meterCanvas').getContext('2d');
+  if(meterChart)meterChart.destroy();
+  meterChart=new Chart(ctx,{type:'doughnut',data:{datasets:[{data:[rp,100-rp],backgroundColor:[col,'rgba(255,255,255,0.05)'],borderWidth:0,borderRadius:4}]},options:{cutout:'70%',rotation:-90,circumference:180,responsive:true,plugins:{legend:{display:false},tooltip:{enabled:false}},animation:{animateRotate:true,duration:900}}});
+  const pe=document.getElementById('riskPct');pe.textContent=rp+'%';pe.style.color=col;
+  const configs={
+    high:{title:'⚠️ High Cardiovascular Risk',desc:`${data.risk_count} of ${data.total} models flagged significant risk. Immediate cardiology consultation recommended.`,tips:['Schedule an appointment with a cardiologist immediately','Monitor BP & cholesterol daily','Avoid strenuous activity until assessed','Begin heart-healthy lifestyle changes now']},
+    moderate:{title:'🟡 Moderate Risk — Monitor Closely',desc:`${data.risk_count} of ${data.total} models flagged potential risk. Preventive action advised.`,tips:['Schedule a cardiac checkup within 2–4 weeks','Adopt a heart-healthy low-sodium diet','150+ minutes of moderate exercise per week','Monitor any new cardiac symptoms']},
+    low:{title:'✅ Low Risk — Keep It Up!',desc:`${data.total-data.risk_count} of ${data.total} models indicate low cardiovascular risk.`,tips:['Continue regular physical activity','Maintain a balanced heart-healthy diet','Annual health screenings recommended','Report any new symptoms promptly']},
+  };
+  const c=configs[data.risk_label];
+  document.getElementById('riskTitle').textContent=c.title;
+  document.getElementById('riskDesc').textContent=c.desc;
+  document.getElementById('riskTips').innerHTML=c.tips.map(t=>`<div class="risk-tip">${t}</div>`).join('');
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+{% endblock %}

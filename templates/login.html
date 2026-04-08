@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CardioSense — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#09090e;--sur:#111117;--sur2:#17171f;--bdr:rgba(255,255,255,.07);--acc:#e03050;--txt:#eeeceb;--muted:#6e6e80}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;overflow:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 60% at 18% 28%,rgba(224,48,80,.09),transparent 65%),radial-gradient(ellipse 50% 50% at 82% 72%,rgba(240,165,0,.06),transparent 65%);pointer-events:none;z-index:0}
+.left{width:46%;background:var(--sur);border-right:1px solid var(--bdr);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:3rem;position:relative;z-index:1}
+.brand{text-align:center;margin-bottom:2.5rem}
+.hicon{font-size:3rem;display:block;margin-bottom:.8rem;animation:hb 1.8s ease-in-out infinite}
+@keyframes hb{0%,100%{transform:scale(1)}14%{transform:scale(1.28)}28%{transform:scale(1)}42%{transform:scale(1.14)}56%{transform:scale(1)}}
+.brand h1{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;letter-spacing:-.04em;line-height:1}
+.brand h1 em{color:var(--acc);font-style:italic}
+.brand p{margin-top:.65rem;color:var(--muted);font-size:.9rem;font-weight:300}
+.ecg-wrap{width:100%;max-width:290px;margin-top:2.5rem;opacity:.85}
+.ecg-line{stroke:var(--acc);stroke-width:2;fill:none;stroke-dasharray:800;stroke-dashoffset:800;animation:ecg 3s ease-in-out infinite;filter:drop-shadow(0 0 5px rgba(224,48,80,.5))}
+@keyframes ecg{0%{stroke-dashoffset:800;opacity:0}15%{opacity:1}85%{opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+.stats{display:flex;gap:2rem;margin-top:2.2rem}
+.st{text-align:center}
+.st .n{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700}
+.st .n span{color:var(--acc)}
+.st .l{font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.right{flex:1;display:flex;align-items:center;justify-content:center;padding:3rem;position:relative;z-index:1}
+.box{width:100%;max-width:400px}
+.box h2{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;margin-bottom:.35rem;letter-spacing:-.02em}
+.sub{color:var(--muted);font-size:.88rem;margin-bottom:1.8rem}
+.sub a{color:var(--acc);text-decoration:none;font-weight:500}
+.sub a:hover{text-decoration:underline}
+.field{display:flex;flex-direction:column;gap:.42rem;margin-bottom:1.1rem}
+.field label{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.field input{background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:.76rem 1rem;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.field input:focus{border-color:rgba(224,48,80,.5);box-shadow:0 0 0 3px rgba(224,48,80,.08)}
+.btn{width:100%;padding:.84rem;background:linear-gradient(135deg,var(--acc),#b02040);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.93rem;font-weight:600;cursor:pointer;margin-top:.5rem;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(224,48,80,.35)}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);transition:transform .5s}
+.btn:hover::before{transform:translateX(100%)}
+.alert{padding:.76rem 1rem;border-radius:10px;font-size:.83rem;margin-bottom:1rem;background:rgba(224,48,80,.1);border:1px solid rgba(224,48,80,.25);color:#ff8080}
+@media(max-width:768px){.left{display:none}.right{padding:2rem 1.5rem}}
+</style>
+</head>
+<body>
+<div class="left">
+  <div class="brand">
+    <span class="hicon">♥</span>
+    <h1>Cardio<em>Sense</em></h1>
+    <p>AI-powered cardiovascular risk intelligence</p>
+  </div>
+  <div class="ecg-wrap">
+    <svg viewBox="0 0 300 70" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+      <path class="ecg-line" d="M0,35 L35,35 L44,35 L52,8 L60,62 L68,8 L76,35 L110,35 L118,35 L126,22 L134,48 L142,22 L150,35 L185,35 L193,35 L200,4 L208,66 L216,4 L224,35 L258,35 L266,35 L274,18 L282,52 L290,18 L298,35"/>
+    </svg>
+  </div>
+  <div class="stats">
+    <div class="st"><div class="n">88<span>%</span></div><div class="l">Best Accuracy</div></div>
+    <div class="st"><div class="n">6</div><div class="l">ML Models</div></div>
+    <div class="st"><div class="n">918</div><div class="l">Samples</div></div>
+  </div>
+</div>
+<div class="right">
+  <div class="box">
+    <h2>Welcome back</h2>
+    <p class="sub">Don't have an account? <a href="/register">Create one →</a></p>
+    {% if error %}<div class="alert">⚠ {{ error }}</div>{% endif %}
+    <form method="POST" action="/login">
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" name="email" placeholder="doctor@hospital.com" required autofocus autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      <button class="btn" type="submit">Sign In →</button>
+    </form>
+    <p style="text-align:center;margin-top:1.2rem;font-size:.82rem;color:var(--muted)">
+      New here? <a href="/register" style="color:var(--acc);text-decoration:none;font-weight:600">Create an account</a>
+    </p>
+  </div>
+</div>
+</body>
+</html>

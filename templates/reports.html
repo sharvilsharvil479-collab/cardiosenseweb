@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Reports — CardioSense{% endblock %}
+{% block extra_head %}
+<style>
+.reports-grid{display:grid;gap:.85rem}
+.report-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.05rem 1.4rem;display:flex;align-items:center;gap:1.2rem;transition:border-color .25s}
+.report-row:hover{border-color:rgba(224,48,80,.2)}
+.rep-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.rep-icon-high{background:rgba(224,48,80,.12)}
+.rep-icon-moderate{background:rgba(240,165,0,.12)}
+.rep-icon-low{background:rgba(34,197,94,.12)}
+.rep-info{flex:1;min-width:0}
+.rep-info h4{font-size:.88rem;font-weight:600;margin-bottom:.18rem}
+.rep-info p{font-size:.75rem;color:var(--muted)}
+.rep-right{display:flex;align-items:center;gap:.7rem;flex-shrink:0}
+.empty-state{text-align:center;padding:5rem 2rem;color:var(--muted)}
+.empty-state .ei{font-size:3rem;margin-bottom:1rem;display:block}
+.empty-state h3{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:.5rem;color:var(--text)}
+.info-box{background:rgba(240,165,0,.07);border:1px solid rgba(240,165,0,.2);border-radius:12px;padding:.9rem 1.1rem;display:flex;align-items:flex-start;gap:.7rem;margin-bottom:1.3rem;font-size:.83rem;color:var(--gold);line-height:1.65}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>My <em>Reports</em></h1>
+  <p>Download detailed PDF reports for any of your {{ predictions|length }} prediction{{ 's' if predictions|length != 1 else '' }}</p>
+</div>
+
+{% if predictions %}
+<div class="info-box">
+  📄 Each report includes your clinical parameters, all 6 model verdicts, risk score, and personalised recommendations — ready to share with your cardiologist.
+</div>
+<div class="reports-grid">
+{% for p in predictions %}
+<div class="report-row">
+  <div class="rep-icon rep-icon-{{ p.risk_label }}">
+    {{ '⚠️' if p.risk_label=='high' else ('🟡' if p.risk_label=='moderate' else '✅') }}
+  </div>
+  <div class="rep-info">
+    <h4>Report #{{ '%05d' % p.id }} — {{ p.created_at.strftime('%d %b %Y, %I:%M %p') }}</h4>
+    <p>Age {{ p.age }} · {{ 'Male' if p.sex==0 else 'Female' }} · Risk: <strong style="color:{{ '#e03050' if p.risk_label=='high' else ('#f0a500' if p.risk_label=='moderate' else '#22c55e') }}">{{ p.risk_pct }}% {{ p.risk_label|capitalize }}</strong></p>
+  </div>
+  <div class="rep-right">
+    <span class="risk-badge risk-{{ p.risk_label }}">{{ p.risk_label|capitalize }}</span>
+    <a href="/api/report/{{ p.id }}" class="btn btn-primary btn-sm">📥 Download PDF</a>
+  </div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <span class="ei">📄</span>
+  <h3>No reports yet</h3>
+  <p style="margin-bottom:1.5rem">Run a prediction to generate your first detailed PDF report.</p>
+  <a href="/predict" class="btn btn-primary">⚡ Start Predicting</a>
+</div>
+{% endif %}
+<div class="disclaimer">
+  <strong>⚠ Medical Disclaimer</strong><br>
+  Reports are for educational and clinical support purposes only. Always consult a qualified healthcare professional.
+</div>
+{% endblock %}
