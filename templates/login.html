@@ -39,7 +39,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .btn::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);transition:transform .5s}
 .btn:hover::before{transform:translateX(100%)}
 .alert{padding:.76rem 1rem;border-radius:10px;font-size:.83rem;margin-bottom:1rem;background:rgba(224,48,80,.1);border:1px solid rgba(224,48,80,.25);color:#ff8080}
-@media(max-width:768px){.left{display:none}.right{padding:2rem 1.5rem}}
+@media(max-width:768px){body{flex-direction:column;overflow-y:auto}.left{width:100%;border-right:none;border-bottom:1px solid var(--bdr);padding:2.5rem 1.5rem}.right{width:100%;padding:2rem 1.5rem}}
 </style>
 </head>
 <body>
