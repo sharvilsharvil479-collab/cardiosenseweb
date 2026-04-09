@@ -114,11 +114,30 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .disclaimer{text-align:center;padding:1.8rem;color:var(--muted);font-size:.76rem;border-top:1px solid var(--border);margin-top:3rem;line-height:2}
 .disclaimer strong{color:var(--accent)}
 
-@media(max-width:900px){.sidebar{transform:translateX(-100%)}.main{margin-left:0;padding:1.4rem}}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s;width:260px}
+  .sidebar.mobile-open{transform:translateX(0)}
+  .main{margin-left:0;padding:1.2rem}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+  .grid-4{grid-template-columns:1fr 1fr}
+  .mobile-header{display:flex!important}
+}
+@media(max-width:500px){
+  .grid-4{grid-template-columns:1fr}
+}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40;backdrop-filter:blur(2px)}
+.sidebar-overlay.mobile-open{display:block}
+.mobile-header{display:none;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.mobile-header-logo{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
+.mobile-header-logo .heart{color:var(--accent);animation:hb 1.8s ease-in-out infinite;display:inline-block}
+.hamburger{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:1.2rem;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s}
+.hamburger:hover{border-color:rgba(224,48,80,.4)}
 </style>
 {% block extra_head %}{% endblock %}
 </head>
 <body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 {% if session.user_id %}
 <aside class="sidebar">
@@ -165,8 +184,22 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 {% endif %}
 
 <div class="main">
+  {% if session.user_id %}
+  <div class="mobile-header">
+    <div class="mobile-header-logo"><span class="heart">♥</span> CardioSense</div>
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  </div>
+  {% endif %}
   {% block content %}{% endblock %}
 </div>
 
+<script>
+function toggleSidebar(){
+  const s=document.querySelector('.sidebar');
+  if(s) s.classList.toggle('mobile-open');
+  const o=document.getElementById('sidebarOverlay');
+  if(o) o.classList.toggle('mobile-open');
+}
+</script>
 </body>
 </html>

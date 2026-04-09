@@ -32,6 +32,11 @@
 .spin{animation:sp .8s linear infinite;display:inline-block}
 @keyframes sp{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 .demo-note{background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.2);border-radius:10px;padding:.65rem 1rem;font-size:.78rem;color:var(--gold);margin-bottom:1rem}
+@media(max-width:900px){
+  .model-grid{grid-template-columns:1fr;gap:.65rem}
+  .risk-wrap{flex-direction:column;text-align:center;padding:1.4rem}
+  .risk-tips{align-items:center;text-align:left}
+}
 </style>
 {% endblock %}
 {% block content %}

@@ -25,6 +25,14 @@
 .tip-card .ti{font-size:1.4rem;margin-bottom:.5rem}
 .tip-card h4{font-size:.86rem;font-weight:600;margin-bottom:.3rem}
 .tip-card p{font-size:.76rem;color:var(--muted);line-height:1.65}
+@media(max-width:900px){
+  .welcome-strip{flex-direction:column;text-align:center;gap:1.4rem;padding:1.4rem}
+  .quick-actions{width:100%;flex-direction:column}
+  .quick-actions .btn{width:100%}
+  .chart-row{grid-template-columns:1fr;gap:1.4rem}
+  .model-table{display:block;overflow-x:auto;white-space:nowrap}
+  .tip-grid{grid-template-columns:1fr}
+}
 </style>
 {% endblock %}
 {% block content %}

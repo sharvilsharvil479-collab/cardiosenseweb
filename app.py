@@ -674,3 +674,4 @@ def download_report(pred_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
