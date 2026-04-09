@@ -7,7 +7,7 @@
 <style>
 :root{--bg:#09090e;--sur:#111117;--sur2:#17171f;--bdr:rgba(255,255,255,.07);--acc:#e03050;--txt:#eeeceb;--muted:#6e6e80}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;overflow:hidden}
+body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 60% at 18% 28%,rgba(224,48,80,.09),transparent 65%),radial-gradient(ellipse 50% 50% at 82% 72%,rgba(240,165,0,.06),transparent 65%);pointer-events:none;z-index:0}
 .left{width:46%;background:var(--sur);border-right:1px solid var(--bdr);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:3rem;position:relative;z-index:1}
 .brand{text-align:center;margin-bottom:2.5rem}
@@ -39,7 +39,26 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .btn::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);transition:transform .5s}
 .btn:hover::before{transform:translateX(100%)}
 .alert{padding:.76rem 1rem;border-radius:10px;font-size:.83rem;margin-bottom:1rem;background:rgba(224,48,80,.1);border:1px solid rgba(224,48,80,.25);color:#ff8080}
-@media(max-width:768px){body{flex-direction:column;overflow-y:auto}.left{width:100%;border-right:none;border-bottom:1px solid var(--bdr);padding:2.5rem 1.5rem}.right{width:100%;padding:2rem 1.5rem}}
+/* @media(max-width:768px){body{display:block;overflow-x:hidden;overflow-y:auto}.left{width:100%;border-right:none;border-bottom:1px solid var(--bdr);padding:2.5rem 1.5rem}.right{width:100%;padding:2rem 1.5rem}} */
+@media(max-width:768px){
+  body{
+    display:block; /* important fix */
+    overflow-x:hidden;
+    overflow-y:auto;
+  }
+
+  .left{
+    width:100%;
+    border-right:none;
+    border-bottom:1px solid var(--bdr);
+    padding:2.5rem 1.5rem;
+  }
+
+  .right{
+    width:100%;
+    padding:2rem 1.5rem;
+  }
+}
 </style>
 </head>
 <body>
