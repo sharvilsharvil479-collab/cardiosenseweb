@@ -46,18 +46,28 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     overflow-x:hidden;
     overflow-y:auto;
   }
-
   .left{
     width:100%;
     border-right:none;
     border-bottom:1px solid var(--bdr);
     padding:2.5rem 1.5rem;
   }
-
   .right{
     width:100%;
     padding:2rem 1.5rem;
   }
+  .stats{
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:1.5rem;
+  }
+}
+@media(max-width:500px){
+  .brand h1{font-size:2rem}
+  .left{padding:2rem 1rem}
+  .right{padding:2rem 1rem}
+  .stats{gap:1rem}
+  .st .n{font-size:1.3rem}
 }
 </style>
 </head>

@@ -12,10 +12,17 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 @media(max-width:768px){
   body{
     align-items:flex-start;
-    justify-content:flex-start; /* add this */
+    justify-content:center;
     padding:1.5rem 1rem;
     overflow-y:auto; /* important for scroll */
   }
+}
+@media(max-width:500px){
+  body{padding:1rem 0.5rem}
+  .card{padding:1.5rem}
+  .wrap{max-width:100%}
+  .otp-box{width:42px;height:52px;font-size:1.3rem}
+  .otp-row{gap:0.3rem}
 }
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 50% 60% at 80% 20%,rgba(224,48,80,.07),transparent 65%),radial-gradient(ellipse 60% 50% at 20% 80%,rgba(240,165,0,.05),transparent 65%);pointer-events:none;z-index:0}
 .wrap{width:100%;max-width:500px;position:relative;z-index:1}
