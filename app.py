@@ -186,14 +186,14 @@ ML_MODELS = {
     'Gradient Boosting':   'GradientBoostingClassifier.pkl',
 }
 
-# Actual accuracies from your ip-2.py GridSearchCV results
+# Actual accuracies from your latest trained models
 MODEL_ACCURACIES = {
-    'Decision Trees':      80.97,
-    'Logistic Regression': 86.41,
-    'Random Forest':       88.58,
-    'SVM':                 83.69,
-    'XGBoost':             85.32,
-    'Gradient Boosting':   85.86,
+    'Decision Trees':      84.78,
+    'Logistic Regression': 84.24,
+    'Random Forest':       89.13,
+    'SVM':                 88.04,
+    'XGBoost':             86.41,
+    'Gradient Boosting':   87.50,
 }
 
 def load_pkl(path):
