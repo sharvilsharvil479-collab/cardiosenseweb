@@ -345,6 +345,60 @@ def register():
     return render_template('register.html', step='email',
                            error=error, success=success)
 
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    error = None
+    if request.method == 'POST':
+        step  = request.form.get('step', 'send_otp')
+        email = request.form.get('email', '').strip().lower()
+
+        if step == 'send_otp':
+            user = User.query.filter_by(email=email).first()
+            if not user:
+                error = 'No account found with that email address.'
+            else:
+                code = gen_otp()
+                OTP.query.filter_by(email=email, used=False).delete()
+                db.session.add(OTP(
+                    email=email, code=code,
+                    expires_at=datetime.utcnow() + timedelta(minutes=10)
+                ))
+                db.session.commit()
+                sent, err_msg = send_otp_via_emailjs(email, user.name, code)
+                dev_otp = code if (err_msg == 'emailjs_not_configured') else None
+                return render_template('forgot_password.html', step='verify',
+                                       email=email, sent=sent, dev_otp=dev_otp)
+
+        elif step == 'verify_otp':
+            password = request.form.get('password', '')
+            confirm  = request.form.get('confirm', '')
+            entered  = request.form.get('otp', '').strip()
+            
+            if password != confirm:
+                error = 'Passwords do not match.'
+            elif len(password) < 6:
+                error = 'Password must be at least 6 characters long.'
+            else:
+                record = OTP.query.filter_by(email=email, used=False)\
+                                    .order_by(OTP.id.desc()).first()
+                if not record or record.code != entered:
+                    error = 'Invalid OTP code. Please try again.'
+                elif record.expires_at < datetime.utcnow():
+                    error = 'OTP has expired. Please go back and request a new one.'
+                else:
+                    record.used = True
+                    user = User.query.filter_by(email=email).first()
+                    user.password_hash = generate_password_hash(password)
+                    db.session.commit()
+                    return render_template('login.html', error=None, 
+                        success="Password has been reset successfully! You can now sign in.")
+                
+                # if there was an error in verify
+                return render_template('forgot_password.html', step='verify',
+                                       email=email, error=error)
+                
+    return render_template('forgot_password.html', step='email', error=error)
+
 @app.route('/logout')
 def logout():
     session.clear()
