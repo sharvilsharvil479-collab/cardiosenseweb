@@ -53,7 +53,7 @@
 </div>
 
 <div class="grid-4">
-  <div class="stat-pill"><div class="sp-num">95<span>%+</span></div><div class="sp-label">Best Accuracy</div></div>
+  <div class="stat-pill"><div class="sp-num">89<span>%</span></div><div class="sp-label">Best Accuracy</div></div>
   <div class="stat-pill"><div class="sp-num">6</div><div class="sp-label">ML Models</div></div>
   <div class="stat-pill"><div class="sp-num">{{ total_preds }}</div><div class="sp-label">Your Predictions</div></div>
   <div class="stat-pill"><div class="sp-num">{{ high_risk }}</div><div class="sp-label">High Risk Cases</div></div>
@@ -66,16 +66,16 @@
       <thead><tr><th>Model</th><th>Accuracy</th><th>Rank</th></tr></thead>
       <tbody>
         {% for m,acc,badge,rank in [
-          ('Random Forest','95.21','badge-gold','🏆 Best'),
-          ('XGBoost','94.87','badge-gold','★ Top'),
-          ('Gradient Boosting','94.23','badge-silver','—'),
-          ('Logistic Regression','93.18','badge-silver','—'),
-          ('SVM','92.74','badge-grey','—'),
-          ('Decision Trees','91.32','badge-grey','—'),
+          ('Random Forest','89.13','badge-gold','🏆 Best'),
+          ('SVM','88.04','badge-gold','★ Top'),
+          ('Gradient Boosting','87.50','badge-silver','—'),
+          ('XGBoost','86.41','badge-silver','—'),
+          ('Decision Trees','84.78','badge-grey','—'),
+          ('Logistic Regression','84.24','badge-grey','—'),
         ] %}
         <tr>
           <td>{{ m }}</td>
-          <td>{{ acc }}%<div class="acc-bar"><div class="acc-fill" style="width:{{ ((acc|float-88)/12*100)|round }}%"></div></div></td>
+          <td>{{ acc }}%<div class="acc-bar"><div class="acc-fill" style="width:{{ ((acc|float-75)/20*100)|round }}%"></div></div></td>
           <td><span class="badge {{ badge }}">{{ rank }}</span></td>
         </tr>
         {% endfor %}
