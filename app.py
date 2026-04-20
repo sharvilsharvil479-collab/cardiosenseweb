@@ -197,6 +197,13 @@ MODEL_ACCURACIES = {
 }
 
 def load_pkl(path):
+    # First try relative to this file's directory
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    full_path = os.path.join(base_dir, path)
+    if os.path.exists(full_path):
+        with open(full_path, 'rb') as f:
+            return pickle.load(f)
+    # Fallback to current working directory checking
     if os.path.exists(path):
         with open(path, 'rb') as f:
             return pickle.load(f)
@@ -463,6 +470,22 @@ def api_predict():
             'Oldpeak':        float(data['oldpeak']),
             'ST_Slope':       int(data['stslope']),
         }])
+
+        # Add new engineered features to match training script (ip-2-updated.py)
+        input_df['AgeMaxHR_ratio']     = input_df['Age'] / (input_df['MaxHR'] + 1)
+        input_df['OldpeakSlope']       = input_df['Oldpeak'] * input_df['ST_Slope']
+        input_df['AnginaChestPain']    = input_df['ExerciseAngina'] * input_df['ChestPainType']
+        input_df['HighBP_flag']        = (input_df['RestingBP'] > 140).astype(int)
+        input_df['HighChol_flag']      = (input_df['Cholesterol'] > 240).astype(int)
+        input_df['LowHR_flag']         = (input_df['MaxHR'] < 130).astype(int)
+        input_df['Age_Risk']           = ((input_df['Age'] > 55) & (input_df['Sex'] == 0)).astype(int)
+
+        scaler = load_pkl('scaler.pkl')
+        if scaler:
+            input_scaled = scaler.transform(input_df)
+        else:
+            input_scaled = input_df
+
     except Exception as e:
         return jsonify({'error': f'Input error: {str(e)}'}), 400
 
@@ -475,10 +498,10 @@ def api_predict():
         if model:
             # Real model prediction
             try:
-                pred = int(model.predict(input_df)[0])
+                pred = int(model.predict(input_scaled)[0])
                 prob = None
                 if hasattr(model, 'predict_proba'):
-                    prob = round(float(model.predict_proba(input_df)[0][1]) * 100, 1)
+                    prob = round(float(model.predict_proba(input_scaled)[0][1]) * 100, 1)
                 results.append({'model': model_name, 'prediction': pred,
                                 'probability': prob, 'demo': False})
             except Exception as e:

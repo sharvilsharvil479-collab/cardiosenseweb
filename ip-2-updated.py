@@ -27,10 +27,12 @@ print("\nNull values:\n", heart_df.isnull().sum())
 print("\nDuplicates:", heart_df.duplicated().sum())
 
 # ── Step 3: Categorical Encoding ─────────────────────────────────────
-cat_col = heart_df.select_dtypes(include='object').columns
+cat_col = heart_df.select_dtypes(include=['object', 'string']).columns
 for col in cat_col:
-    print(f"\n{col}: {heart_df[col].unique()} → {list(range(heart_df[col].nunique()))}")
-    heart_df[col].replace(heart_df[col].unique(), range(heart_df[col].nunique()), inplace=True)
+    unique_vals = list(heart_df[col].unique())
+    print(f"\n{col}: {unique_vals} → {list(range(len(unique_vals)))}")
+    mapping = {val: i for i, val in enumerate(unique_vals)}
+    heart_df[col] = heart_df[col].map(mapping)
 
 # ── Step 4: Missing Value Treatment ──────────────────────────────────
 from sklearn.impute import KNNImputer
