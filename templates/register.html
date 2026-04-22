@@ -120,9 +120,9 @@ h2{font-family:'Playfair Display',serif;font-size:1.85rem;font-weight:900;margin
     Your OTP: <strong>{{ dev_otp }}</strong>
   </div>
   {% else %}
-  <div class="info-box">
+  <!-- <div class="info-box">
     ⚠ The email could not be delivered. Please check your EmailJS configuration in app.py, or use the OTP printed in your terminal console.
-  </div>
+  </div> -->
   {% endif %}
 
   {% if error %}<div class="alert err">⚠ {{ error }}</div>{% endif %}
