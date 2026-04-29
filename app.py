@@ -414,6 +414,7 @@ def logout():
 # ─────────────────────────────────────────────────────────────────────
 # Routes — Main Pages
 # ─────────────────────────────────────────────────────────────────────
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -751,4 +752,21 @@ def download_report(pred_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
