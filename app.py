@@ -5,6 +5,10 @@ OTP via EmailJS REST API (no SMTP setup required)
 import os, json, random, string, pickle, io, requests as req_lib
 from datetime import datetime, timedelta
 from functools import wraps
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from flask import (Flask, render_template, request, redirect,
                    url_for, session, jsonify, send_file, abort)
@@ -50,9 +54,9 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 #   5. Copy TEMPLATE_ID and PUBLIC_KEY (Account → API Keys)
 #   6. Fill in the 3 values below
 # ─────────────────────────────────────────────────────────────────────
-EMAILJS_SERVICE_ID  = 'service_qlahbdw'    # e.g. 'service_abc123'
-EMAILJS_TEMPLATE_ID = 'template_3npx8x5'   # e.g. 'template_xyz789'
-EMAILJS_PUBLIC_KEY  = 'YYSuTTS85eQH0P2LN'    # e.g. 'user_AbCdEfGhIj'
+EMAILJS_SERVICE_ID  = os.environ.get('EMAILJS_SERVICE_ID', 'YOUR_SERVICE_ID')
+EMAILJS_TEMPLATE_ID = os.environ.get('EMAILJS_TEMPLATE_ID', 'YOUR_TEMPLATE_ID')
+EMAILJS_PUBLIC_KEY  = os.environ.get('EMAILJS_PUBLIC_KEY', 'YOUR_PUBLIC_KEY')
 
 db = SQLAlchemy(app)
 
