@@ -6,9 +6,11 @@ import os, json, random, string, pickle, io, requests as req_lib
 from datetime import datetime, timedelta
 from functools import wraps
 from dotenv import load_dotenv
+import os
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file explicitly in the same directory
+basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, '.env'))
 
 from flask import (Flask, render_template, request, redirect,
                    url_for, session, jsonify, send_file, abort)
@@ -157,7 +159,6 @@ def send_otp_via_emailjs(to_email, to_name, otp_code):
         print("Payload:", payload)
         print("Status:", resp.status_code)
         print("Response:", resp.text)
-        print("JSON:", resp.json())
         print("===========================\n")
         if resp.status_code == 200:
             app.logger.info(f"OTP sent successfully to {to_email}")
@@ -325,9 +326,10 @@ def register():
                 sent, err_msg = send_otp_via_emailjs(email, name, code)
                 # Pass dev_otp only when EmailJS is not yet configured
                 dev_otp = code if (err_msg == 'emailjs_not_configured') else None
+                error_msg = err_msg if not sent and err_msg != 'emailjs_not_configured' else None
                 return render_template('register.html', step='verify',
                                        email=email, name=name, password=password,
-                                       sent=sent, dev_otp=dev_otp)
+                                       sent=sent, dev_otp=dev_otp, error=error_msg)
 
         elif step == 'verify_otp':
             name     = request.form.get('name', '').strip()
@@ -377,8 +379,9 @@ def forgot_password():
                 db.session.commit()
                 sent, err_msg = send_otp_via_emailjs(email, user.name, code)
                 dev_otp = code if (err_msg == 'emailjs_not_configured') else None
+                error_msg = err_msg if not sent and err_msg != 'emailjs_not_configured' else None
                 return render_template('forgot_password.html', step='verify',
-                                       email=email, sent=sent, dev_otp=dev_otp)
+                                       email=email, sent=sent, dev_otp=dev_otp, error=error_msg)
 
         elif step == 'verify_otp':
             password = request.form.get('password', '')
