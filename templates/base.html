@@ -6,6 +6,12 @@
 <title>{% block title %}CardioSense{% endblock %}</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  (function() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  })();
+</script>
 <style>
 :root {
   --bg:#09090e; --surface:#111117; --surface2:#17171f;
@@ -13,6 +19,17 @@
   --gold:#f0a500; --text:#eeeceb; --muted:#6e6e80;
   --success:#22c55e; --warn:#f0a500;
   --glow:0 0 40px rgba(224,48,80,0.1); --radius:16px;
+  --table-border:rgba(255,255,255,.03); --table-hover:rgba(255,255,255,.02);
+  --alert-err-text:#ff8080; --alert-succ-text:#4ade80;
+}
+:root[data-theme="light"] {
+  --bg:#f8f9fa; --surface:#ffffff; --surface2:#f1f3f5;
+  --border:rgba(0,0,0,0.08); --accent:#d02040;
+  --gold:#d97706; --text:#212529; --muted:#6c757d;
+  --success:#16a34a; --warn:#ea580c;
+  --glow:0 0 40px rgba(224,48,80,0.15);
+  --table-border:rgba(0,0,0,.04); --table-hover:rgba(0,0,0,.03);
+  --alert-err-text:#dc2626; --alert-succ-text:#16a34a;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -62,8 +79,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .field label{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .field input,.field select{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s,box-shadow .2s;appearance:none;width:100%}
 .field input:focus,.field select:focus{border-color:rgba(224,48,80,.5);box-shadow:0 0 0 3px rgba(224,48,80,.08)}
-.field select option{background:#17171f}
-.field input[type=range]{padding:.2rem 0;accent-color:var(--accent);cursor:pointer;background:transparent;border:none;box-shadow:none}
+.field select option{background:var(--surface2)}
+.field input[type=range]{-webkit-appearance:auto;appearance:auto;padding:.2rem 0;accent-color:var(--accent);cursor:pointer;background:transparent;border:none;box-shadow:none}
 .range-val{font-size:.8rem;color:var(--accent);font-weight:600}
 
 /* Buttons */
@@ -80,8 +97,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 /* Alerts */
 .alert{padding:.8rem 1rem;border-radius:10px;font-size:.84rem;margin-bottom:1rem}
-.alert-error{background:rgba(224,48,80,.1);border:1px solid rgba(224,48,80,.25);color:#ff8080}
-.alert-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#4ade80}
+.alert-error{background:rgba(224,48,80,.1);border:1px solid rgba(224,48,80,.25);color:var(--alert-err-text)}
+.alert-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--alert-succ-text)}
 .alert-warn{background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.25);color:var(--gold)}
 
 /* Grids */
@@ -106,9 +123,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 /* Table */
 .data-table{width:100%;border-collapse:collapse;font-size:.86rem}
 .data-table th{text-align:left;padding:.6rem .9rem;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);font-weight:600}
-.data-table td{padding:.82rem .9rem;border-bottom:1px solid rgba(255,255,255,.03)}
+.data-table td{padding:.82rem .9rem;border-bottom:1px solid var(--table-border)}
 .data-table tr:last-child td{border-bottom:none}
-.data-table tr:hover td{background:rgba(255,255,255,.02)}
+.data-table tr:hover td{background:var(--table-hover)}
 
 /* Disclaimer */
 .disclaimer{text-align:center;padding:1.8rem;color:var(--muted);font-size:.76rem;border-top:1px solid var(--border);margin-top:3rem;line-height:2}
@@ -136,6 +153,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .mobile-header-logo .heart{color:var(--accent);animation:hb 1.8s ease-in-out infinite;display:inline-block}
 .hamburger{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:1.2rem;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s}
 .hamburger:hover{border-color:rgba(224,48,80,.4)}
+.theme-toggle-desktop{position:absolute;top:2.2rem;right:2.5rem;background:var(--surface2);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s;z-index:10;font-size:1.2rem;}
+.theme-toggle-desktop:hover{border-color:rgba(224,48,80,.4)}
+@media(max-width:900px){.theme-toggle-desktop{display:none}}
 </style>
 {% block extra_head %}{% endblock %}
 </head>
@@ -187,11 +207,15 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 </aside>
 {% endif %}
 
-<div class="main">
+  <div class="main">
+  <button class="theme-toggle-desktop" onclick="toggleTheme()" id="themeBtnDesktop">☀️</button>
   {% if session.user_id %}
   <div class="mobile-header">
     <div class="mobile-header-logo"><span class="heart">♥</span> CardioSense</div>
-    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <div style="display: flex; gap: 0.5rem;">
+      <button class="hamburger" onclick="toggleTheme()" id="themeBtnMobile">☀️</button>
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    </div>
   </div>
   {% endif %}
   {% block content %}{% endblock %}
@@ -204,6 +228,32 @@ function toggleSidebar(){
   const o=document.getElementById('sidebarOverlay');
   if(o) o.classList.toggle('mobile-open');
 }
+
+function toggleTheme() {
+  const root = document.documentElement;
+  const currentTheme = root.getAttribute('data-theme');
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  root.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateThemeUI(newTheme);
+}
+
+function updateThemeUI(theme) {
+  const mobileIcon = document.getElementById('themeBtnMobile');
+  const desktopIcon = document.getElementById('themeBtnDesktop');
+  
+  if(mobileIcon) {
+    mobileIcon.textContent = theme === 'light' ? '🌙' : '☀️';
+  }
+  if(desktopIcon) {
+    desktopIcon.textContent = theme === 'light' ? '🌙' : '☀️';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const theme = document.documentElement.getAttribute('data-theme');
+  updateThemeUI(theme);
+});
 </script>
 </body>
 </html>

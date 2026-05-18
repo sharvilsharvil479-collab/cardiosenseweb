@@ -4,9 +4,18 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>CardioSense — Sign In</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>
+  (function() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  })();
+</script>
 <style>
-:root{--bg:#09090e;--sur:#111117;--sur2:#17171f;--bdr:rgba(255,255,255,.07);--acc:#e03050;--txt:#eeeceb;--muted:#6e6e80}
+:root{--bg:#09090e;--sur:#111117;--sur2:#17171f;--bdr:rgba(255,255,255,.07);--acc:#e03050;--txt:#eeeceb;--muted:#6e6e80;--alert-err-bg:rgba(224,48,80,.1);--alert-err-bdr:rgba(224,48,80,.25);--alert-err-txt:#ff8080;}
+:root[data-theme="light"]{--bg:#f8f9fa;--sur:#ffffff;--sur2:#f1f3f5;--bdr:rgba(0,0,0,0.08);--acc:#d02040;--txt:#212529;--muted:#6c757d;--alert-err-bg:rgba(220,38,38,.1);--alert-err-bdr:rgba(220,38,38,.25);--alert-err-txt:#dc2626;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+.theme-toggle-global{position:absolute;top:1.5rem;right:1.5rem;background:var(--sur2);border:1px solid var(--bdr);color:var(--txt);width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s;z-index:100;font-size:1.2rem;padding:0;}
+.theme-toggle-global:hover{border-color:rgba(224,48,80,.4)}
 body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 60% at 18% 28%,rgba(224,48,80,.09),transparent 65%),radial-gradient(ellipse 50% 50% at 82% 72%,rgba(240,165,0,.06),transparent 65%);pointer-events:none;z-index:0}
 .left{width:46%;background:var(--sur);border-right:1px solid var(--bdr);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:3rem;position:relative;z-index:1}
@@ -38,7 +47,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(224,48,80,.35)}
 .btn::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);transition:transform .5s}
 .btn:hover::before{transform:translateX(100%)}
-.alert{padding:.76rem 1rem;border-radius:10px;font-size:.83rem;margin-bottom:1rem;background:rgba(224,48,80,.1);border:1px solid rgba(224,48,80,.25);color:#ff8080}
+.alert{padding:.76rem 1rem;border-radius:10px;font-size:.83rem;margin-bottom:1rem;background:var(--alert-err-bg);border:1px solid var(--alert-err-bdr);color:var(--alert-err-txt)}
 /* @media(max-width:768px){body{display:block;overflow-x:hidden;overflow-y:auto}.left{width:100%;border-right:none;border-bottom:1px solid var(--bdr);padding:2.5rem 1.5rem}.right{width:100%;padding:2rem 1.5rem}} */
 @media(max-width:768px){
   body{
@@ -69,14 +78,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   .stats{gap:1rem}
   .st .n{font-size:1.3rem}
 }
-body {
-  margin: 0;
-}
-body {
-  margin: 0;
-  background: #000;
-}
-
 .footer {
   position: fixed;
   bottom: 0;
@@ -84,8 +85,8 @@ body {
   right: 0;
   text-align: center;
   padding: 10px 0;
-  background: #000;
-  color: #888;
+  background: var(--bg);
+  color: var(--muted);
   font-size: 13px;
 }
 
@@ -102,6 +103,7 @@ body {
 </style>
 </head>
 <body>
+<button class="theme-toggle-global" onclick="toggleTheme()" id="themeBtn">☀️</button>
 <div class="left">
   <div class="brand">
     <span class="hicon">♥</span>
@@ -148,10 +150,28 @@ body {
 
     </p><br><br><br>
 <footer class="footer">
-  <p>© 2026 <span>Sharvil Sharma</span> | AI Heart Disease Prediction</p>
+  <p>© 2026 <span>Sharvil Sharma & Subhadip Maji</span> | AI Heart Disease Prediction</p>
 </footer>
   </div>
  
 </div>
+<script>
+function toggleTheme() {
+  const root = document.documentElement;
+  const currentTheme = root.getAttribute('data-theme');
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  root.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateThemeUI(newTheme);
+}
+function updateThemeUI(theme) {
+  const btn = document.getElementById('themeBtn');
+  if(btn) btn.textContent = theme === 'light' ? '🌙' : '☀️';
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  updateThemeUI(theme);
+});
+</script>
 </body>
 </html>
